@@ -1,22 +1,48 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="6211" systemVersion="14A298i" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="BV1-FR-VrT">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="7528.3" systemVersion="14C1510" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="BV1-FR-VrT">
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="6204"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="7518.3"/>
     </dependencies>
     <scenes>
         <!--Game View Controller-->
         <scene sceneID="tXr-a1-R10">
             <objects>
-                <viewController id="BV1-FR-VrT" customClass="GameViewController" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController id="BV1-FR-VrT" customClass="GameViewController" customModule="Hoops" customModuleProvider="target" sceneMemberID="viewController">
                     <layoutGuides>
-                        <viewControllerLayoutGuide type="top" id="Cei-gA-s71"/>
-                        <viewControllerLayoutGuide type="bottom" id="O1X-57-Ctf"/>
+                        <viewControllerLayoutGuide type="top" id="ayQ-PM-cJC"/>
+                        <viewControllerLayoutGuide type="bottom" id="5hW-NB-qL7"/>
                     </layoutGuides>
-                    <sceneKitView key="view" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" id="3se-qz-xqx">
+                    <view key="view" contentMode="scaleToFill" id="VAR-yp-zcX">
                         <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
-                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
-                    </sceneKitView>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                        <subviews>
+                            <sceneKitView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="0TG-Is-vie">
+                                <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                            </sceneKitView>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="oP7-nI-RYd">
+                                <rect key="frame" x="10" y="30" width="75" height="75"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="75" id="PDx-BS-SWo"/>
+                                    <constraint firstAttribute="height" constant="75" id="yRp-F6-Cya"/>
+                                </constraints>
+                            </view>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="oP7-nI-RYd" firstAttribute="top" secondItem="ayQ-PM-cJC" secondAttribute="bottom" constant="10" id="A52-kU-Rq5"/>
+                            <constraint firstItem="0TG-Is-vie" firstAttribute="top" secondItem="VAR-yp-zcX" secondAttribute="top" id="D3m-xl-cmE"/>
+                            <constraint firstAttribute="bottom" secondItem="0TG-Is-vie" secondAttribute="bottom" id="H48-1o-M3i"/>
+                            <constraint firstItem="oP7-nI-RYd" firstAttribute="leading" secondItem="VAR-yp-zcX" secondAttribute="leading" constant="10" id="eTL-dT-Ggm"/>
+                            <constraint firstAttribute="trailing" secondItem="0TG-Is-vie" secondAttribute="trailing" id="rCL-0b-C9z"/>
+                            <constraint firstItem="0TG-Is-vie" firstAttribute="leading" secondItem="VAR-yp-zcX" secondAttribute="leading" id="sQB-y4-N2c"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="mapView" destination="oP7-nI-RYd" id="z9o-rv-81Q"/>
+                        <outlet property="scnView" destination="0TG-Is-vie" id="rNk-yB-RdH"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="SZV-WD-TEh" sceneMemberID="firstResponder"/>
             </objects>
