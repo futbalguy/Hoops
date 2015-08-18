@@ -8,13 +8,13 @@
 
 let kCameraAngleRatio = 1.0 //1.0 is parallel to ground
 
-let kBallLaunchAngleRatio = 0.6
+let kBallLaunchAngleRatio = 0.58
 
 let kCameraOffset = Float(2.0)
 
-let kCameraYFOV = Double(55)
+let kCameraYFOV = Double(50)
 
-let kCourtLength = CGFloat(30)
+let kCourtFullLength = CGFloat(30.0)
 
 let kBallRadius = CGFloat(0.119253) //diameter of bball is 9.38 inches
 
@@ -29,7 +29,7 @@ import GLKit
 import QuartzCore
 import SceneKit
 
-class GameViewController: UIViewController, SCNPhysicsContactDelegate {
+class GameViewController: UIViewController, SCNPhysicsContactDelegate, SCNSceneRendererDelegate {
     
     var scene : SCNScene!
     
@@ -40,17 +40,17 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate {
     
     var backWallNode : SCNNode!
     var frontWallNode : SCNNode!
-
+    
     var hoopNode : SCNNode!
     var hoopNetNode : SCNNode!
     var hoopNetSpaceNode : SCNNode!
-
+    
     var hoopPoleNode : SCNNode!
     var hoopPoleHorizontalNode : SCNNode!
     
     var backboardNode : SCNNode!
     var backboardRimGapNode : SCNNode!
-
+    
     var rimPlaneNode : SCNNode!
     var rimNode: SCNNode!
     
@@ -60,7 +60,13 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate {
     var ballCameraOrbitNode : SCNNode!
     var ballCameraNode : SCNNode!
     
+    var ballStartPosition : SCNVector3!
+    var ballLastStartPosition : SCNVector3?
+    
     var ballPositions : [BallPosition]!
+    
+    var ballPositionView : UIView?
+    var ballStartPositionView : UIView?
     
     var launchInfo : LaunchInfo!
     
@@ -73,6 +79,22 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate {
     @IBOutlet var scnView: SCNView!
     
     @IBOutlet var mapView: UIView!
+    
+    var mapTitleLabel: UILabel!
+    var mapImageView: UIImageView!
+    var mapViewConfirmButton : UIButton!
+    var mapViewCancelButton : UIButton!
+    
+    var isMapViewExpanded : Bool!
+    
+    @IBOutlet var mapViewConstraintLeft : NSLayoutConstraint!
+    @IBOutlet var mapViewConstraintTop : NSLayoutConstraint!
+    @IBOutlet var mapViewConstraintWidth : NSLayoutConstraint!
+    @IBOutlet var mapViewConstraintHeight : NSLayoutConstraint!
+    
+    var mapTitleHeightConstraint : NSLayoutConstraint!
+    var mapImageHeightConstraint : NSLayoutConstraint!
+    var buttonHeightConstraint : NSLayoutConstraint!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -91,12 +113,14 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate {
         self.setupCamera()
         
         self.setupLighting()
-
+        
         scnView.pointOfView = self.cameraNode
         
         // set the scene to the view
         scnView.scene = scene
+        scnView.delegate = self
         scnView.scene!.physicsWorld.speed = 1.0
+        scnView.scene!.physicsWorld.timeStep = 1.0/180.0 //1/60 is default
         scnView.scene!.physicsWorld.contactDelegate = self
         
         // allows the user to manipulate the camera
@@ -123,17 +147,426 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate {
         
         self.ballPositions = [BallPosition]()
         
-        self.resetBasketMadeChecks()
+        self.isMapViewExpanded = false
+    }
+    
+    func renderer(aRenderer: SCNSceneRenderer, willRenderScene scene: SCNScene, atTime time: NSTimeInterval) {
         
-        self.setBallStartPosition(SCNVector3(x: 1.0, y: ballYMin, z: 3.0))
         
-        //self.basketballNode.position = SCNVector3(x: 0, y: 0, z: 10)
+    }
+    
+    func renderer(aRenderer: SCNSceneRenderer, didRenderScene scene: SCNScene, atTime time: NSTimeInterval) {
+        
+        let dispatchDelay = 0.0
+        let dispatchTime: dispatch_time_t = dispatch_time(DISPATCH_TIME_NOW, Int64(dispatchDelay * Double(NSEC_PER_SEC)))
+        dispatch_after(dispatchTime, dispatch_get_main_queue(), {
+            
+            
+            
+            let basketballNode = scene.rootNode.childNodeWithName("Basketball", recursively: true)!
+            let position = basketballNode.presentationNode().position
+            
+            self.updateMapBallPositionForPosition(position)
+            self.updateMapBallStartPositionForPosition(self.ballStartPosition)
+        })
+    }
+    
+    func renderer(aRenderer: SCNSceneRenderer, didSimulatePhysicsAtTime time: NSTimeInterval) {
+        
+        
+    }
+    
+    override func viewWillAppear(animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        self.view.layoutIfNeeded()
         
         self.setupMapView()
+        
+        self.setBallStartPosition(SCNVector3(x: 0.0, y: ballYMin, z: 3.0))
+        
+        self.resetBasketMadeChecks()
+        
     }
     
     func setupMapView () {
-        self.mapView.backgroundColor = UIColor.greenColor()
+        self.mapView.userInteractionEnabled = true
+        self.mapView.backgroundColor = UIColor.blackColor().colorWithAlphaComponent(0.0)
+        
+        self.setupMapTitleView()
+        self.setupMapImageView()
+        self.setupMapViewButtons()
+        
+        self.setupMapViewConstraints()
+    }
+    
+    func setupMapTitleView () {
+        self.mapTitleLabel = UILabel(frame: CGRectZero)
+        self.mapTitleLabel.setTranslatesAutoresizingMaskIntoConstraints(false)
+        
+        let titleText = "\nBasketball Shooting Location"
+        let titleText2 = "\n(Tap To Change)"
+        
+        let titleFont = UIFont.boldSystemFontOfSize(26.0)
+        let titleFont2 = UIFont.systemFontOfSize(24.0)
+        
+        let titleAttributedText = NSMutableAttributedString(string: titleText, attributes: [NSFontAttributeName:titleFont, NSForegroundColorAttributeName:UIColor.whiteColor()])
+        let titleAttributedText2 = NSMutableAttributedString(string: titleText2, attributes: [NSFontAttributeName:titleFont2, NSForegroundColorAttributeName:UIColor.lightGrayColor()])
+        
+        titleAttributedText.appendAttributedString(titleAttributedText2)
+        
+        self.mapTitleLabel.attributedText = titleAttributedText
+        self.mapTitleLabel.numberOfLines = 0
+        self.mapTitleLabel.textAlignment = NSTextAlignment.Center
+        
+        self.mapTitleLabel.alpha = 0
+        
+        self.mapView.addSubview(self.mapTitleLabel)
+        
+    }
+    
+    func setupMapViewConstraints () {
+        
+        //title constraints
+        
+        let leftTitleConstraint = NSLayoutConstraint(item: self.mapView, attribute: .Left, relatedBy: .Equal, toItem: self.mapTitleLabel, attribute: .Left, multiplier: 1.0, constant: 0.0)
+        
+        let rightTitleConstraint = NSLayoutConstraint(item: self.mapView, attribute: .Right, relatedBy: .Equal, toItem: self.mapTitleLabel, attribute: .Right, multiplier: 1.0, constant: 0.0)
+        
+        let topTitleConstraint = NSLayoutConstraint(item: self.mapView, attribute: .Top, relatedBy: .Equal, toItem: self.mapTitleLabel, attribute: .Top, multiplier: 1.0, constant: 0.0)
+        
+        self.mapTitleHeightConstraint = NSLayoutConstraint(item: self.mapTitleLabel, attribute: NSLayoutAttribute.Height, relatedBy: NSLayoutRelation.Equal, toItem: nil, attribute: NSLayoutAttribute.NotAnAttribute, multiplier: 1.0, constant: 0.0)
+        
+        self.mapView.addConstraints([leftTitleConstraint, rightTitleConstraint,topTitleConstraint,self.mapTitleHeightConstraint])
+        
+        
+        //image constraints
+        
+        let leftImageConstraint = NSLayoutConstraint(item: self.mapView, attribute: .Left, relatedBy: .Equal, toItem: self.mapImageView, attribute: .Left, multiplier: 1.0, constant: 0.0)
+        
+        let rightImageConstraint = NSLayoutConstraint(item: self.mapView, attribute: .Right, relatedBy: .Equal, toItem: self.mapImageView, attribute: .Right, multiplier: 1.0, constant: 0.0)
+        
+        let topImageConstraint = NSLayoutConstraint(item: self.mapTitleLabel, attribute: .Bottom, relatedBy: .Equal, toItem: self.mapImageView, attribute: .Top, multiplier: 1.0, constant: 0.0)
+        
+        let height = self.mapView.bounds.size.height
+        self.mapImageHeightConstraint = NSLayoutConstraint(item: self.mapImageView, attribute: NSLayoutAttribute.Height, relatedBy: NSLayoutRelation.Equal, toItem: nil, attribute: NSLayoutAttribute.NotAnAttribute, multiplier: 1.0, constant: height)
+        
+        self.mapView.addConstraints([leftImageConstraint, rightImageConstraint,topImageConstraint,self.mapImageHeightConstraint])
+        
+        //button constraints
+        
+        let leftConfirmButtonConstraint = NSLayoutConstraint(item: self.mapView, attribute: .Left, relatedBy: .Equal, toItem: self.mapViewConfirmButton, attribute: .Left, multiplier: 1.0, constant: -10.0)
+        
+        let topConfirmButtonConstraint = NSLayoutConstraint(item: self.mapViewConfirmButton, attribute: .Top, relatedBy: .Equal, toItem: self.mapImageView, attribute: .Bottom, multiplier: 1.0, constant: 10.0)
+        
+        let topCancelButtonConstraint = NSLayoutConstraint(item: self.mapViewCancelButton, attribute: .Top, relatedBy: .Equal, toItem: self.mapImageView, attribute: .Bottom, multiplier: 1.0, constant: 10.0)
+        
+        let middleButtonConstraint = NSLayoutConstraint(item: self.mapViewConfirmButton, attribute: .Right, relatedBy: .Equal, toItem: self.mapViewCancelButton, attribute: .Left, multiplier: 1.0, constant: -10.0)
+        
+        let rightCancelButtonConstraint = NSLayoutConstraint(item: self.mapView, attribute: .Right, relatedBy: .Equal, toItem: self.mapViewCancelButton, attribute: .Right, multiplier: 1.0, constant: 10.0)
+        
+        let buttonEqualWidth = NSLayoutConstraint(item: self.mapViewConfirmButton, attribute: .Width, relatedBy: .Equal, toItem: self.mapViewCancelButton, attribute: .Width, multiplier: 1.0, constant: 0.0)
+        
+        let buttonEqualHeight = NSLayoutConstraint(item: self.mapViewConfirmButton, attribute: .Height, relatedBy: .Equal, toItem: self.mapViewCancelButton, attribute: .Height, multiplier: 1.0, constant: 0.0)
+        
+        self.buttonHeightConstraint = NSLayoutConstraint(item: self.mapViewConfirmButton, attribute: NSLayoutAttribute.Height, relatedBy: NSLayoutRelation.Equal, toItem: nil, attribute: NSLayoutAttribute.NotAnAttribute, multiplier: 1.0, constant: 0.0)
+        
+        self.mapView.addConstraints([leftConfirmButtonConstraint,topConfirmButtonConstraint,topCancelButtonConstraint,middleButtonConstraint,rightCancelButtonConstraint,buttonEqualWidth,buttonEqualHeight, self.buttonHeightConstraint])
+        
+        
+    }
+    
+    func setupMapImageView () {
+        self.mapImageView = UIImageView(image: UIImage(contentsOfFile: NSBundle.mainBundle().pathForResource("basketballHalfCourt", ofType: "png")!))
+        self.mapImageView.setTranslatesAutoresizingMaskIntoConstraints(false)
+        
+        self.mapImageView.contentMode = UIViewContentMode.ScaleAspectFit
+        self.mapView.addSubview(self.mapImageView)
+        
+        let tapGesture = UITapGestureRecognizer(target: self, action: "handleMapTap:")
+        tapGesture.numberOfTapsRequired = 1
+        self.mapImageView.userInteractionEnabled = true
+        
+        self.mapImageView.addGestureRecognizer(tapGesture)
+    }
+    
+    func setupMapViewButtons () {
+        
+        self.mapViewConfirmButton = UIButton(frame: CGRectZero)
+        self.mapViewConfirmButton.setTranslatesAutoresizingMaskIntoConstraints(false)
+        
+        self.mapViewConfirmButton.setTitle("Confirm Change", forState: UIControlState.Normal)
+        
+        self.mapViewConfirmButton.backgroundColor = UIColor.blueColor()
+        self.mapViewConfirmButton.layer.cornerRadius = 15.0
+        self.mapViewConfirmButton.layer.borderWidth = 1.0
+        self.mapViewConfirmButton.layer.borderColor = UIColor.blackColor().CGColor
+        
+        self.mapViewConfirmButton.addTarget(self, action: "mapViewConfirmTapped:", forControlEvents: UIControlEvents.TouchUpInside)
+        
+        self.mapView.addSubview(self.mapViewConfirmButton)
+        
+        
+        self.mapViewCancelButton = UIButton(frame: CGRectZero)
+        self.mapViewCancelButton.setTranslatesAutoresizingMaskIntoConstraints(false)
+        
+        self.mapViewCancelButton.setTitle("Cancel", forState: UIControlState.Normal)
+        
+        self.mapViewCancelButton.backgroundColor = UIColor.blueColor()
+        self.mapViewCancelButton.layer.cornerRadius = 15.0
+        self.mapViewCancelButton.layer.borderWidth = 1.0
+        self.mapViewCancelButton.layer.borderColor = UIColor.blackColor().CGColor
+        
+        self.mapViewCancelButton.addTarget(self, action: "mapViewCancelTapped:", forControlEvents: UIControlEvents.TouchUpInside)
+        
+        self.mapView.addSubview(self.mapViewCancelButton)
+        
+        self.mapViewConfirmButton.alpha = 0.0
+        self.mapViewCancelButton.alpha = 0.0
+        
+        self.mapView.layoutIfNeeded()
+        
+    }
+    
+    func mapViewConfirmTapped(recognizer:UIButton) {
+        println("confirm tapped")
+        
+        self.ballLastStartPosition = nil
+        
+        self.animateMapViewExpand(false)
+        self.isMapViewExpanded = false
+    }
+    
+    func mapViewCancelTapped(recognizer:UIButton) {
+        println("cancel tapped")
+        
+        self.setBallStartPosition(self.ballLastStartPosition!)
+        
+        
+        self.animateMapViewExpand(false)
+        self.isMapViewExpanded = false
+    }
+    
+    func animateMapViewExpand(expandBool : Bool) {
+        
+        var width = CGFloat(0.0)
+        var height = CGFloat(0.0)
+        var left = CGFloat(0.0)
+        var top = CGFloat(0.0)
+        var titleHeight = CGFloat(0.0)
+        
+        if (expandBool) {
+            
+            left = 0.0
+            width = self.view.bounds.size.width
+            height = self.view.bounds.size.height
+            top = 0
+            titleHeight = 120
+            
+        } else {
+            
+            width = 75.0
+            height = 75.0
+            top = 30.0  //20.0 for top guide and then 10 more for space
+            left = 10.0
+            titleHeight = 0
+            
+        }
+        
+        self.ballPositionView!.alpha = 0
+        self.ballStartPositionView!.alpha = 0
+        
+        
+        self.mapView.layoutIfNeeded()
+        
+        UIView.animateWithDuration(0.5, delay: 0, options: UIViewAnimationOptions.AllowAnimatedContent, animations: { () -> Void in
+            
+            self.mapViewConstraintWidth.constant = width
+            self.mapViewConstraintHeight.constant = height
+            self.mapViewConstraintLeft.constant = left
+            self.mapViewConstraintTop.constant = top
+            self.mapImageHeightConstraint.constant = width
+            self.mapTitleHeightConstraint.constant = titleHeight
+            
+            
+            if (expandBool) {
+                self.buttonHeightConstraint.constant = 40.0
+                self.mapViewConfirmButton.alpha = 1.0
+                self.mapViewCancelButton.alpha = 1.0
+                self.mapTitleLabel.alpha = 1.0
+                
+                self.mapView.backgroundColor = UIColor.blackColor().colorWithAlphaComponent(0.8)
+                
+            } else {
+                self.buttonHeightConstraint.constant = 0.0
+                self.mapViewConfirmButton.alpha = 0.0
+                self.mapViewCancelButton.alpha = 0.0
+                self.mapTitleLabel.alpha = 0.0
+                
+                self.mapView.backgroundColor = UIColor.blackColor().colorWithAlphaComponent(0.0)
+                
+            }
+            
+            self.mapView.layoutIfNeeded()
+            
+            
+            }) { (finished:Bool) -> Void in
+                
+                self.ballStartPositionView!.alpha = 1
+                
+                if expandBool == false {
+                    self.ballPositionView!.alpha = 1
+                    
+                }
+        }
+        
+    }
+    
+    
+    func updateMapBallPositionForPosition(position:SCNVector3) {
+        
+        if ( self.ballPositionView == nil ) {
+            
+            self.ballPositionView = self.makeBallPositionView()
+            self.mapImageView.addSubview(self.ballPositionView!)
+            self.mapImageView.sendSubviewToBack(self.ballPositionView!)
+            
+        }
+        
+        if (self.isMapViewExpanded == true) {
+            self.ballPositionView!.frame.size = CGSize(width: 20, height: 20)
+            
+        } else {
+            self.ballPositionView!.frame.size = CGSize(width: 10, height: 10)
+            
+        }
+        self.ballPositionView!.layer.cornerRadius = self.ballPositionView!.frame.size.height / 2.0
+        
+        
+        let mapBallPosition = self.mapBallPositionFromBallPosition(position)
+        self.ballPositionView!.center = mapBallPosition
+        
+    }
+    
+    func updateMapBallStartPositionForPosition(position:SCNVector3) {
+        
+        if ( self.ballStartPositionView == nil ) {
+            
+            self.ballStartPositionView = self.makeBallStartPositionView()
+            self.mapImageView.addSubview(self.ballStartPositionView!)
+            self.mapImageView.bringSubviewToFront(self.ballStartPositionView!)
+        }
+        
+        if (self.isMapViewExpanded == true) {
+            self.ballStartPositionView!.frame.size = CGSize(width: 20, height: 20)
+            
+        } else {
+            self.ballStartPositionView!.frame.size = CGSize(width: 10, height: 10)
+            
+        }
+        self.ballStartPositionView!.layer.cornerRadius = self.ballStartPositionView!.frame.size.height / 2.0
+        
+        
+        let mapBallStartPosition = self.mapBallPositionFromBallPosition(position)
+        self.ballStartPositionView!.center = mapBallStartPosition
+        
+    }
+    
+    func makeBallPositionView () -> UIView {
+        
+        let viewFrame = CGRect(x: 0, y: 0, width: 10, height: 10)
+        let view = UIView(frame: viewFrame)
+        view.setTranslatesAutoresizingMaskIntoConstraints(false)
+        
+        view.backgroundColor = UIColor.orangeColor()
+        view.layer.cornerRadius = view.frame.size.height / 2.0
+        view.layer.borderColor = UIColor.blackColor().CGColor
+        view.layer.borderWidth = 1.0
+        
+        return view
+    }
+    
+    func makeBallStartPositionView () -> UIView {
+        
+        let viewFrame = CGRect(x: 0, y: 0, width: 10, height: 10)
+        let view = UIView(frame: viewFrame)
+        view.setTranslatesAutoresizingMaskIntoConstraints(false)
+        
+        view.backgroundColor = UIColor.greenColor()
+        view.layer.cornerRadius = view.frame.size.height / 2.0
+        view.layer.borderColor = UIColor.blackColor().CGColor
+        view.layer.borderWidth = 1.0
+        
+        return view
+    }
+    
+    func mapBallPositionFromBallPosition(position:SCNVector3) -> CGPoint {
+        
+        let ballPosition = position
+        
+        let mapWidth = self.mapImageView.frame.size.width
+        let mapHeight = self.mapImageView.frame.size.height
+        
+        let widthRatio = Float(mapWidth / courtWidth())
+        let heightRatio = Float(mapHeight / courtLength())
+        
+        let adjustedX = ballPosition.x * widthRatio
+        let adjustedY = ballPosition.y
+        let adjustedZ = (ballPosition.z + Float(kHoopDistanceFromWall)) * heightRatio
+        
+        let adjustedPosition = SCNVector3(x: adjustedX, y: adjustedY, z: adjustedZ)
+        
+        let mappedX = Float(mapWidth) / 2.0 + adjustedPosition.x
+        let mappedY = adjustedPosition.z
+        
+        return CGPoint(x: CGFloat(mappedX), y: CGFloat(mappedY))
+    }
+    
+    func ballPositionFromMapPosition(position:CGPoint) -> SCNVector3 {
+        
+        let mapPosition = position
+        
+        let mapWidth = self.mapImageView.frame.size.width
+        let mapHeight = self.mapImageView.frame.size.height
+        
+        let x = Float(mapPosition.x) - Float(mapWidth) / 2.0
+        let z = Float(mapPosition.y)
+        let y = self.ballYMin
+        
+        let widthRatio = Float(mapWidth / courtWidth())
+        let heightRatio = Float(mapHeight / courtLength())
+        
+        let adjustedX = x / widthRatio
+        let adjustedY = y
+        let adjustedZ = z / heightRatio - Float(kHoopDistanceFromWall)
+        
+        return SCNVector3(x: adjustedX, y: adjustedY, z: adjustedZ)
+        
+    }
+    
+    func handleMapTap(recognizer:UIGestureRecognizer) {
+        println("map tapped")
+        
+        //stop ball from rolling because it just looks weird
+        self.basketballNode.physicsBody!.angularVelocity = SCNVector4(x: 0, y: 0, z: 0, w: 0)
+        
+        if (self.isMapViewExpanded == false) {
+            
+            if (self.ballLastStartPosition == nil) {
+                self.ballLastStartPosition = self.ballStartPosition
+            }
+            
+            self.animateMapViewExpand(true)
+            self.isMapViewExpanded = true
+            
+        } else {
+            
+            let newBallPoint = recognizer.locationInView(self.mapImageView)
+            let newBallPosition = self.ballPositionFromMapPosition(newBallPoint)
+            
+            self.setBallStartPosition(newBallPosition)
+            
+        }
     }
     
     func resetBasketMadeChecks () {
@@ -157,17 +590,17 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate {
         let surfacesToShowBounceBitMask = Collisions.Backboard | Collisions.Wall | Collisions.Pole
         
         let contactMask =
-            contact.nodeB.physicsBody!.categoryBitMask
+        contact.nodeB.physicsBody!.categoryBitMask
         
         if ((contactMask & surfacesToShowBounceBitMask.rawValue) > 0) {
             
             //println("node A: \(contact.nodeA.name)")
             //println("node B: \(contact.nodeB.name)")
-
+            
             self.addParticleForBounceAtCoordinates(contact.contactPoint)
         }
     }
-
+    
     
     func checkBasketMadeForPhysicsContact(contact: SCNPhysicsContact) {
         
@@ -177,15 +610,16 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate {
         contact.nodeB.physicsBody!.categoryBitMask
         
         if ((contactMask & surfacesToShowBounceBitMask.rawValue) > 0) {
-        
+            
             
             // check that at least half of the ball is in the bucked and the rim plane was contacted
             if (contact.penetrationDistance >= kBallRadius && contact.contactNormal.y > 0 && self.isOKToScoreBasket == true) {
                 
                 self.highlightNode(self.backboardNode)
+                self.highlightNode(self.hoopNetNode)
                 
                 self.isOKToScoreBasket = false
-
+                
             }
             
         }
@@ -238,7 +672,7 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate {
         material.emission.contents = UIColor.greenColor()
         
         SCNTransaction.commit()
-
+        
     }
     
     func setupLighting () {
@@ -246,7 +680,7 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate {
         let spotLight = SCNLight()
         spotLight.type = SCNLightTypeSpot
         spotLight.attenuationStartDistance = 0.0
-        spotLight.attenuationEndDistance = 50.0
+        spotLight.attenuationEndDistance = 55.0
         spotLight.attenuationFalloffExponent = 2.0
         
         spotLight.spotInnerAngle = 150.0
@@ -262,17 +696,17 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate {
         
         let spotlightNode = SCNNode()
         spotlightNode.light = spotLight
-        spotlightNode.position = SCNVector3(x: 0, y: 25, z: Float(kCourtLength / 4.0))
+        spotlightNode.position = SCNVector3(x: 0, y: 30, z: Float(courtLength() / 2.0))
         spotlightNode.eulerAngles = SCNVector3(x: Float(M_PI_2 * 3.0), y: 0, z: 0)
         scene.rootNode.addChildNode(spotlightNode)
         
         let light = SCNLight()
         light.type = SCNLightTypeOmni
         light.attenuationStartDistance = 0.0
-        light.attenuationEndDistance = 50.0
+        light.attenuationEndDistance = 55.0
         light.attenuationFalloffExponent = 2.0
         
-        let lightSpacing = Float(kCourtLength / 4.0)
+        let lightSpacing = Float(courtLength() / 2.0)
         let lightHeight = Float(25)
         
         // create and add a light to the scene
@@ -288,26 +722,13 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate {
         lightNode2.eulerAngles = SCNVector3(x: Float(M_PI_2 * 3.0), y: 0, z: 0)
         scene.rootNode.addChildNode(lightNode2)
         
-        let lightNode3 = SCNNode()
-        lightNode3.light = light
-        lightNode3.position = SCNVector3(x: lightSpacing, y: lightHeight, z: 3.0 * lightSpacing)
-        lightNode3.eulerAngles = SCNVector3(x: Float(M_PI_2 * 3.0), y: 0, z: 0)
-        scene.rootNode.addChildNode(lightNode3)
-        
-        let lightNode4 = SCNNode()
-        lightNode4.light = light
-        lightNode4.position = SCNVector3(x: -lightSpacing, y: lightHeight, z: 3.0 * lightSpacing)
-        lightNode4.eulerAngles = SCNVector3(x: Float(M_PI_2 * 3.0), y: 0, z: 0)
-        
-        scene.rootNode.addChildNode(lightNode4)
-        
         // create and add an ambient light to the scene
         let ambientLightNode = SCNNode()
         ambientLightNode.light = SCNLight()
         ambientLightNode.light!.type = SCNLightTypeAmbient
-        ambientLightNode.light!.color = UIColor(white: 0.5, alpha: 1.0)
+        ambientLightNode.light!.color = UIColor(white: 0.50, alpha: 1.0)
         scene.rootNode.addChildNode(ambientLightNode)
-
+        
     }
     
     func setupCamera () {
@@ -362,7 +783,7 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate {
         ballBody.angularDamping = 0.2
         ballBody.velocity = SCNVector3(x: 0.0, y: 0.0, z: 0.0)
         ballBody.angularVelocity = SCNVector4(x: 0.0, y: 0.0, z: 0.0, w: 0.0)
-        ballBody.restitution = 1.1
+        ballBody.restitution = 1.0
         ballBody.friction = 0.2
         ballBody.rollingFriction = 1.0
         
@@ -378,10 +799,15 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate {
     func setBallStartPosition(position:SCNVector3) {
         
         self.basketballNode.position = SCNVector3(x: position.x, y: ballYMin, z: position.z)
-
+        self.basketballNode.physicsBody!.resetTransform()
+        
         self.cameraNode.eulerAngles = self.cameraAngleRelativeToBallPosition(self.basketballNode.position)
         self.cameraNode.position = self.cameraPositionRelativeToBallPosition(self.basketballNode.position)
-
+        
+        self.ballStartPosition = position
+        
+        self.updateMapBallPositionForPosition(self.ballStartPosition)
+        self.updateMapBallStartPositionForPosition(self.ballStartPosition)
     }
     
     func angleRelativeToBallPosition(position:SCNVector3) -> Float {
@@ -404,8 +830,8 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate {
         
         let cameraAdditionalX = sin(angle) * kCameraOffset
         let cameraAdditionalZ = cos(angle) * kCameraOffset
-
-        let cameraHeight = Float(1.75)
+        
+        let cameraHeight = Float(2.0)
         
         return SCNVector3(x: position.x + cameraAdditionalX, y: cameraHeight, z: position.z + cameraAdditionalZ)
     }
@@ -419,21 +845,22 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate {
     }
     
     func setupCourtNode () {
-     
+        
         self.courtNode = scene.rootNode.childNodeWithName("Court", recursively: true)!
         self.courtNode.removeFromParentNode()
-        
+        self.courtNode.castsShadow = false
+
         let courtLength = self.courtLength()
         let courtWidth = self.courtWidth()
         let courtThickness = CGFloat(0.5)
-
-        let courtGeometry = SCNBox(width: courtLength, height: courtThickness, length: courtWidth, chamferRadius: 0)
         
-        courtGeometry.firstMaterial!.diffuse.contents = UIImage(contentsOfFile: NSBundle.mainBundle().pathForResource("basketballCourt", ofType: "png")!)
+        let courtGeometry = SCNBox(width: courtWidth, height: courtThickness, length: courtLength, chamferRadius: 0)
+        
+        courtGeometry.firstMaterial!.diffuse.contents = UIImage(contentsOfFile: NSBundle.mainBundle().pathForResource("basketballHalfCourt", ofType: "png")!)
         
         self.courtNode = SCNNode(geometry: courtGeometry)
-        self.courtNode.position = SCNVector3(x: 0.0, y: Float(-courtThickness / 2.0), z: Float(kCourtLength/2.0 - kHoopDistanceFromWall))
-        self.courtNode.eulerAngles = SCNVector3(x: 0, y: Float(-M_PI_2), z: 0)
+        self.courtNode.position = SCNVector3(x: 0.0, y: Float(-courtThickness / 2.0), z: Float(courtLength / 2.0 - kHoopDistanceFromWall))
+        self.courtNode.eulerAngles = SCNVector3(x: 0, y: 0, z: 0)
         
         self.courtNode.name = "Court"
         
@@ -452,7 +879,7 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate {
         
         self.courtNode.physicsBody = courtBody
         
-       /* let courtNodeGeo = SCNSphere(radius: 0.5)
+        /* let courtNodeGeo = SCNSphere(radius: 0.5)
         
         self.courtNodeSystem = SCNNode(geometry: courtNodeGeo)
         self.courtNodeSystem.position = SCNVector3(x: 0, y: 0, z: -15)
@@ -466,7 +893,7 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate {
         testNode.position = SCNVector3(x: 0, y: 0, z: 10)
         
         self.courtNodeSystem.addChildNode(testNode)*/
-
+        
     }
     
     func setupHoopNode () {
@@ -481,8 +908,7 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate {
         self.hoopNode.name = "Hoop"
         
         self.hoopNode.categoryBitMask = 0 // invisible to camera
-
-
+        
         self.scene.rootNode.addChildNode(self.hoopNode)
         
         
@@ -491,17 +917,19 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate {
         
         self.rimNode = SCNNode(geometry: rimGeometry)
         self.rimNode.position = SCNVector3(x: 0, y: Float(rimHeight), z: 0)
-        self.hoopNode.addChildNode(self.rimNode)
+        self.rimNode.castsShadow = false
 
+        self.hoopNode.addChildNode(self.rimNode)
+        
         var rimBody = SCNPhysicsBody(type: SCNPhysicsBodyType.Static, shape: SCNPhysicsShape(geometry: self.rimNode.geometry!, options: [SCNPhysicsShapeTypeKey:SCNPhysicsShapeTypeConcavePolyhedron]))
-        rimBody.friction = 0.0
-        rimBody.rollingFriction = 0.0
+        rimBody.friction = 0.5
+        rimBody.rollingFriction = 0.5
         
         rimBody.categoryBitMask = Collisions.Rim.rawValue
         
         self.rimNode.physicsBody = rimBody
-
-        let hoopNetHeight = CGFloat(0.4)
+        
+        let hoopNetHeight = CGFloat(0.45)
         
         let hoopNetGeometry = SCNTube(innerRadius: rimRadius, outerRadius: rimRadius + 0.02, height: hoopNetHeight)
         hoopNetGeometry.firstMaterial!.diffuse.contents = UIImage(contentsOfFile: NSBundle.mainBundle().pathForResource("net", ofType: "png")!)
@@ -510,16 +938,17 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate {
         self.hoopNetNode.position = SCNVector3(x: 0, y: Float(rimHeight - hoopNetHeight / 2.0), z: 0)
         
         self.hoopNetNode.name = "HoopNet"
+        self.hoopNetNode.castsShadow = false
 
         self.hoopNode.addChildNode(self.hoopNetNode)
         
         var hoopNetBody = SCNPhysicsBody(type: SCNPhysicsBodyType.Static, shape: SCNPhysicsShape(geometry: self.hoopNetNode.geometry!, options: [SCNPhysicsShapeTypeKey:SCNPhysicsShapeTypeConcavePolyhedron]))
         
         hoopNetBody.friction = 1.0
-        hoopNetBody.rollingFriction = 1.0
-
+        hoopNetBody.rollingFriction = 0.0
+        
         hoopNetBody.categoryBitMask = Collisions.HoopNet.rawValue
-
+        
         
         self.hoopNetNode.physicsBody = hoopNetBody
         
@@ -531,7 +960,8 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate {
         self.hoopNetSpaceNode.position = SCNVector3(x: 0, y: Float(rimHeight - hoopNetHeight / 2.0), z: 0)
         
         self.hoopNetSpaceNode.name = "HoopNet"
-        
+        self.hoopNetSpaceNode.castsShadow = false
+
         self.hoopNode.addChildNode(self.hoopNetSpaceNode)
         
         var hoopNetSpaceBody = SCNPhysicsBody(type: SCNPhysicsBodyType.Kinematic, shape: SCNPhysicsShape(geometry: self.hoopNetSpaceNode.geometry!, options: nil))
@@ -553,7 +983,7 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate {
         self.rimPlaneNode.eulerAngles = SCNVector3(x: Float(M_PI_2), y: 0, z: 0)
         
         self.rimPlaneNode.name = "RimPlane"
-
+        
         self.hoopNode.addChildNode(self.rimPlaneNode)
         
         var rimPlaneBody = SCNPhysicsBody(type: SCNPhysicsBodyType.Kinematic, shape: SCNPhysicsShape(geometry: self.rimPlaneNode.geometry!, options: nil))
@@ -573,11 +1003,12 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate {
         backboardGeometry.firstMaterial!.diffuse.contents = UIImage(contentsOfFile: NSBundle.mainBundle().pathForResource("backboard", ofType: "png")!)
         
         self.backboardNode = SCNNode(geometry: backboardGeometry)
-        self.backboardNode.position = SCNVector3(x: 0, y: Float(rimHeight + backboardHeight / 2.0) - 0.05, z: Float(-backboardThickness/2.0) - Float(rimRadius + rimPipeRadius * 2.0) - Float(backboardRimGap))
+        self.backboardNode.position = SCNVector3(x: 0, y: Float(rimHeight + backboardHeight / 2.0) - 0.075, z: Float(-backboardThickness/2.0) - Float(rimRadius + rimPipeRadius * 2.0) - Float(backboardRimGap))
         
         self.backboardNode.name = "Backboard"
         
         self.backboardNode.categoryBitMask = 2
+        self.backboardNode.castsShadow = false
         
         self.hoopNode.addChildNode(self.backboardNode)
         
@@ -598,7 +1029,8 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate {
         self.backboardRimGapNode.position = SCNVector3(x: 0, y: Float(rimHeight), z: -Float(rimRadius + rimPipeRadius * 2.0) - Float(backboardRimGap/2.0))
         
         self.backboardRimGapNode.name = "BackboardRimGap"
-        
+        self.backboardRimGapNode.castsShadow = false
+
         self.hoopNode.addChildNode(self.backboardRimGapNode)
         
         var backboardRimGapBody = SCNPhysicsBody(type: SCNPhysicsBodyType.Static, shape: SCNPhysicsShape(geometry: self.backboardRimGapNode.geometry!, options: [SCNPhysicsShapeTypeKey:SCNPhysicsShapeTypeBoundingBox]))
@@ -609,19 +1041,21 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate {
         
         self.backboardRimGapNode.physicsBody = backboardRimGapBody
         
-
+        
         
         let poleRadius = CGFloat(0.05)
         let poleHeight = rimHeight + backboardHeight / 2.0
         
         let poleGeometry = SCNCylinder(radius: poleRadius, height: poleHeight)
+
         poleGeometry.firstMaterial!.diffuse.contents = UIColor.grayColor()
         
         self.hoopPoleNode = SCNNode(geometry: poleGeometry)
         self.hoopPoleNode.position = SCNVector3(x: 0, y: Float(poleHeight / CGFloat(2.0)), z: Float(-kHoopDistanceFromWall + 0.4))
-        
-        self.hoopPoleNode.name = "HoopPole"
+        self.hoopPoleNode.castsShadow = false
 
+        self.hoopPoleNode.name = "HoopPole"
+        
         self.hoopNode.addChildNode(self.hoopPoleNode)
         
         var poleBody = SCNPhysicsBody(type: SCNPhysicsBodyType.Static, shape: SCNPhysicsShape(geometry: self.hoopPoleNode.geometry!, options: [SCNPhysicsShapeTypeKey:SCNPhysicsShapeTypeBoundingBox]))
@@ -639,9 +1073,10 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate {
         self.hoopPoleHorizontalNode = SCNNode(geometry: poleHorizontalGeometry)
         self.hoopPoleHorizontalNode.position = SCNVector3(x: 0, y: Float(poleHeight), z: (self.backboardNode.position.z - self.hoopPoleNode.position.z) / 2.0 + self.hoopPoleNode.position.z - Float(poleRadius) / 2.0)
         self.hoopPoleHorizontalNode.eulerAngles = SCNVector3(x: Float(M_PI_2), y: 0, z: 0)
-
-        self.hoopPoleHorizontalNode.name = "HoopPoleHorizontal"
         
+        self.hoopPoleHorizontalNode.name = "HoopPoleHorizontal"
+        self.hoopPoleHorizontalNode.castsShadow = false
+
         self.hoopNode.addChildNode(self.hoopPoleHorizontalNode)
         
         var poleHorizontalBody = SCNPhysicsBody(type: SCNPhysicsBodyType.Static, shape: SCNPhysicsShape(geometry: self.hoopPoleHorizontalNode.geometry!, options: [SCNPhysicsShapeTypeKey:SCNPhysicsShapeTypeBoundingBox]))
@@ -651,15 +1086,19 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate {
         poleHorizontalBody.categoryBitMask = Collisions.Pole.rawValue
         
         self.hoopPoleHorizontalNode.physicsBody = poleHorizontalBody
-
+        
     }
     
     func courtLength() -> CGFloat {
-        return kCourtLength
+        return kCourtFullLength * 1251.0 / 2085.0 //adjust for half court
     }
     
     func courtWidth() -> CGFloat {
-        return self.courtLength() * 1251.0 / 2085.0
+        // return self.courtLength() * 1251.0 / 2085.0
+        
+        //half coourt is same width as length = 1251 pixels
+        return self.courtLength()
+        
     }
     
     func setupBackWallNode () {
@@ -667,7 +1106,7 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate {
         let wallWidth = self.courtWidth()
         let wallHeight = CGFloat(50.0)
         let wallThickness = CGFloat(0.5)
-
+        
         let backWallZPosition = -kHoopDistanceFromWall
         
         let wallGeometry = SCNBox(width: wallWidth, height: wallHeight, length: wallThickness, chamferRadius: 0)
@@ -677,9 +1116,10 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate {
         self.backWallNode = SCNNode(geometry: wallGeometry)
         self.backWallNode.position = SCNVector3(x: 0.0, y: Float(backWallZPosition), z: Float(backWallZPosition))
         self.backWallNode.eulerAngles = SCNVector3(x: 0, y: 0, z: 0)
-        
-        self.backWallNode.name = "BackWall"
+        self.backWallNode.castsShadow = false
 
+        self.backWallNode.name = "BackWall"
+        
         self.scene.rootNode.addChildNode(self.backWallNode)
         
         let bodyScaleVector = SCNVector3(x: 1.1, y: 1.1, z: 1.0)
@@ -694,7 +1134,7 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate {
         self.backWallNode.physicsBody = wallBody
         
         self.backWallNode.categoryBitMask = 2
-
+        
     }
     
     func setupFrontWallNode () {
@@ -704,15 +1144,16 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate {
         let wallHeight = CGFloat(50.0)
         let wallThickness = CGFloat(0.5)
         
-        let backWallZPosition = kCourtLength - kHoopDistanceFromWall
+        let backWallZPosition = courtLength() - kHoopDistanceFromWall
         
         let wallGeometry = SCNBox(width: wallWidth, height: wallHeight, length: wallThickness, chamferRadius: 0)
-
+        
         
         self.frontWallNode = SCNNode(geometry: wallGeometry)
         self.frontWallNode.position = SCNVector3(x: 0.0, y: Float(backWallZPosition), z: Float(backWallZPosition))
         self.frontWallNode.eulerAngles = SCNVector3(x: 0, y: 0, z: 0)
-        
+        self.frontWallNode.castsShadow = false
+
         self.frontWallNode.name = "FrontWall"
         
         self.scene.rootNode.addChildNode(self.frontWallNode)
@@ -727,7 +1168,7 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate {
         wallBody.categoryBitMask = Collisions.FrontWall.rawValue
         
         self.frontWallNode.physicsBody = wallBody
-
+        
         self.frontWallNode.categoryBitMask = 0 // invisible to camera
     }
     
@@ -773,25 +1214,25 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate {
                 self.moveBallNodeToRecognizer(gestureRecognize)
                 self.activateGravity(false)
                 
-
+                
                 
         } else if (gestureRecognize.state == UIGestureRecognizerState.Ended ||
             gestureRecognize.state == UIGestureRecognizerState.Cancelled ||
             gestureRecognize.state == UIGestureRecognizerState.Failed) {
                 
                 
-            self.scene.removeAllParticleSystems()
-            self.resetBasketMadeChecks()
-        
-            self.moveBallNodeToRecognizer(gestureRecognize)
+                self.scene.removeAllParticleSystems()
+                self.resetBasketMadeChecks()
+                
+                self.moveBallNodeToRecognizer(gestureRecognize)
                 self.activateGravity(true)
                 self.addBallVelocity()
                 
-            self.ballPositions = [BallPosition]()
-
-            self.addBallAngularVelocity()
+                self.ballPositions = [BallPosition]()
                 
-
+                self.addBallAngularVelocity()
+                
+                
         }
     }
     
@@ -799,8 +1240,10 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate {
         
         let p = gestureRecognize.locationInView(scnView)
         let newPosition = self.positionForNode(self.basketballNode, locationInView: p)
-
+        
         self.basketballNode.position = newPosition
+        self.basketballNode.physicsBody!.resetTransform()
+        
         self.updateBallPositionsFor(self.basketballNode.position)
         
     }
@@ -823,7 +1266,7 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate {
         var xDiff = Float(0)
         var yDiff = Float(0)
         var zDiff = Float(0)
-
+        
         if (self.ballPositions.count == 2) {
             
             let ballPosition1 = self.ballPositions[1]
@@ -831,7 +1274,7 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate {
             
             let time2 = ballPosition2.date
             let time1 = ballPosition1.date
-
+            
             let timeElapsed = time2.timeIntervalSinceDate(time1)
             
             xDiff = (ballPosition2.position.x - ballPosition1.position.x) / Float(timeElapsed)
@@ -870,16 +1313,22 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate {
             
         }
         
-        let slowAdjust = Float(1.0)
+        let slowAdjust = Float(1.1)
         
         xDiff /= slowAdjust
         yDiff /= slowAdjust
         zDiff /= slowAdjust
         
+        let maxDiff = Float(12.0)
+        
+        xDiff = min(xDiff,maxDiff)
+        yDiff = min(yDiff,maxDiff)
+        zDiff = min(zDiff,maxDiff)
+        
         //adjust for cameraAngle, want X to have all velocity
         let angleFromBasket = self.angleRelativeToBallPosition(self.cameraNode.position)
         let rotationVector = SCNVector4(x: 0, y: 1, z: 0, w: Float(angleFromBasket * -1.0))
-
+        
         let originalVector = SCNVector3(x: xDiff, y: yDiff, z: zDiff)
         let adjustedVector = self.rotateSCNVector3(originalVector, byRotationSCNVector4: rotationVector)
         
@@ -899,22 +1348,64 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate {
         
         var rotatedVector = self.rotateSCNVector3(positionChangeVector, byRotationSCNVector4: rotationVector2)
         
+        let ballLandingSpot = self.landingSpotForBallLaunchPosition(self.basketballNode.position, actualLaunchVector: rotatedVector)
+        
         let idealLaunchVector = self.idealLaunchVectorForBallLaunchPosition(self.basketballNode.position, actualLaunchVector: rotatedVector)
         
-        if (!isnan(idealLaunchVector.y)) {
-            let blendRatioVertical = Float(0.2) //ratio of real to ideal
-            let blendRatioHorizontal = Float(0.2) //ratio of real to ideal
-
+        if (!isnan(ballLandingSpot.x) && !isnan(ballLandingSpot.z)) {
             
-            let newX = rotatedVector.x * blendRatioHorizontal + idealLaunchVector.x * (1.0 - blendRatioHorizontal)
-            let newY = rotatedVector.y * blendRatioVertical + idealLaunchVector.y * (1.0 - blendRatioVertical)
-            let newZ = rotatedVector.z * blendRatioVertical + idealLaunchVector.z * (1.0 - blendRatioVertical)
-
-            rotatedVector = SCNVector3(x: newX, y: newY, z: newZ)
+            let landingSpotDistanceFromBasket = sqrt( ballLandingSpot.x * ballLandingSpot.x + ballLandingSpot.z * ballLandingSpot.z )
+            
+            if (!isnan(idealLaunchVector.y) ) {
+                var blendRatioVertical = Float(0) //ratio of real to ideal
+                var blendRatioHorizontal = Float(0) //ratio of real to ideal
+                
+                if (landingSpotDistanceFromBasket < 0.5) {
+                    
+                    blendRatioVertical = Float(0.15)
+                    blendRatioHorizontal = Float(0.15)
+                    
+                }
+                else if (landingSpotDistanceFromBasket < 1.0) {
+                    
+                    blendRatioVertical = Float(0.2)
+                    blendRatioHorizontal = Float(0.2)
+                    
+                } else if (landingSpotDistanceFromBasket < 2.0) {
+                    
+                    blendRatioVertical = Float(0.3)
+                    blendRatioHorizontal = Float(0.3)
+                    
+                } else if (landingSpotDistanceFromBasket < 3.0) {
+                    
+                    blendRatioVertical = Float(0.4)
+                    blendRatioHorizontal = Float(0.4)
+                    
+                } else if (landingSpotDistanceFromBasket < 5.0) {
+                    
+                    blendRatioVertical = Float(0.6)
+                    blendRatioHorizontal = Float(0.6)
+                    
+                } else {
+                    
+                    blendRatioVertical = Float(1.0)
+                    blendRatioHorizontal = Float(1.0)
+                }
+                
+                println("blended ratio: \(blendRatioHorizontal)")
+                
+                let newX = rotatedVector.x * blendRatioHorizontal + idealLaunchVector.x * (1.0 - blendRatioHorizontal)
+                let newY = rotatedVector.y * blendRatioVertical + idealLaunchVector.y * (1.0 - blendRatioVertical)
+                let newZ = rotatedVector.z * blendRatioVertical + idealLaunchVector.z * (1.0 - blendRatioVertical)
+                
+                rotatedVector = SCNVector3(x: newX, y: newY, z: newZ)
+            
+            }
+            
         }
-
+        
         self.basketballNode.physicsBody!.velocity = rotatedVector
-
+        
         self.launchInfo = LaunchInfo(position: self.basketballNode.position, initialVelocity: self.basketballNode.physicsBody!.velocity)
     }
     
@@ -923,7 +1414,7 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate {
         //get ball distance from rim center
         let xDistance = self.rimNode.position.x - position.x
         let yDistance = self.rimNode.position.y - position.y
-        let zDistance = self.rimNode.position.z - position.z - 0.1
+        let zDistance = self.rimNode.position.z - position.z
         
         let totalDistance = sqrt(xDistance * xDistance + yDistance * yDistance + zDistance * zDistance)
         
@@ -948,6 +1439,38 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate {
         return SCNVector3(x: xDistance / time, y: yVector , z: zDistance / time)
     }
     
+    func landingSpotForBallLaunchPosition (position: SCNVector3, actualLaunchVector:SCNVector3) -> SCNVector3 {
+        
+        //get ball distance from rim center
+        let xDistance = self.rimNode.position.x - position.x
+        let yDistance = self.rimNode.position.y - position.y
+        let zDistance = self.rimNode.position.z - position.z - 0.1
+        
+        let totalDistance = sqrt(xDistance * xDistance + yDistance * yDistance + zDistance * zDistance)
+        
+        //get time by dividing total distance by total original velocity
+        //let time = totalDistance / totalVelocity
+        
+        //y = actualLaunchVector.y * t - 4.9 * t^2
+        
+        let gravity = Float(4.9)
+        
+        let aa = Float(-gravity)
+        let bb = actualLaunchVector.y
+        let cc = -yDistance
+        
+        let d = ( -bb + sqrt( bb * bb - 4.0 * aa * cc ) ) / (2.0 * aa)
+        let e = ( -bb - sqrt( bb * bb - 4.0 * aa * cc ) ) / (2.0 * aa)
+        
+        let time = e
+        
+        let yLandingSpot = position.y - cc
+        let xLandingSpot = position.x + actualLaunchVector.x * time
+        let zLandingSpot = position.z + actualLaunchVector.z * time
+        
+        return SCNVector3(x: xLandingSpot, y: yLandingSpot , z: zLandingSpot)
+    }
+    
     func rotateSCNVector3(startSCNVector3:SCNVector3, byRotationSCNVector4 rotationVector:SCNVector4) -> SCNVector3 {
         
         let matrix = SCNMatrix4MakeRotation(rotationVector.w, rotationVector.x, rotationVector.y, rotationVector.z)
@@ -969,9 +1492,9 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate {
             if (self.ballPositions.count > 5) {
                 self.ballPositions.removeLast()
             }
-
+            
         } else {
-        
+            
             self.ballPositions.append(BallPosition(position: position))
         }
     }
@@ -1019,16 +1542,16 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate {
     func activateGravity(bool:Bool) {
         
         if (bool) {
-
+            
             //self.scene.physicsWorld.gravity = SCNVector3(x: 0, y: -9.8, z: 0)
             self.basketballNode.physicsBody!.mass = kBallMass
-
+            
         } else {
             
             //self.scene.physicsWorld.gravity = SCNVector3(x: 0, y: 0, z: 0)
-
+            
             self.basketballNode.physicsBody!.mass = 0.0
-
+            
         }
     }
     

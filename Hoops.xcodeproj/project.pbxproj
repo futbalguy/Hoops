@@ -7,12 +7,13 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2723687A1AC39C4B00D9D86D /* basketballHalfCourt.png in Resources */ = {isa = PBXBuildFile; fileRef = 272368791AC39C4B00D9D86D /* basketballHalfCourt.png */; };
 		272BCB9D1AC1E280009D08E8 /* backboard.png in Resources */ = {isa = PBXBuildFile; fileRef = 272BCB9C1AC1E280009D08E8 /* backboard.png */; };
 		272BCB9F1AC1EABC009D08E8 /* LaunchInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 272BCB9E1AC1EABC009D08E8 /* LaunchInfo.swift */; };
 		276115B01AB8AF65008D1D78 /* basketball_floor_texture.png in Resources */ = {isa = PBXBuildFile; fileRef = 276115AF1AB8AF65008D1D78 /* basketball_floor_texture.png */; };
 		2783C97F1ABC9AE8008EB093 /* BallPosition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2783C97E1ABC9AE8008EB093 /* BallPosition.swift */; };
 		2783C9811ABCCB6E008EB093 /* basketball_floor_textureHQ.png in Resources */ = {isa = PBXBuildFile; fileRef = 2783C9801ABCCB6E008EB093 /* basketball_floor_textureHQ.png */; };
-		2783C9831ABF2566008EB093 /* basketballCourt.png in Resources */ = {isa = PBXBuildFile; fileRef = 2783C9821ABF2565008EB093 /* basketballCourt.png */; };
+		2783C9831ABF2566008EB093 /* basketballFullCourt.png in Resources */ = {isa = PBXBuildFile; fileRef = 2783C9821ABF2565008EB093 /* basketballFullCourt.png */; };
 		2783C9B61AC083DD008EB093 /* MyParticleSystem.scnp in Resources */ = {isa = PBXBuildFile; fileRef = 2783C9B41AC083DD008EB093 /* MyParticleSystem.scnp */; };
 		2783C9B71AC083DD008EB093 /* spark.png in Resources */ = {isa = PBXBuildFile; fileRef = 2783C9B51AC083DD008EB093 /* spark.png */; };
 		2783C9B91AC08B27008EB093 /* CollisionCategory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2783C9B81AC08B27008EB093 /* CollisionCategory.swift */; };
@@ -41,12 +42,13 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		272368791AC39C4B00D9D86D /* basketballHalfCourt.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = basketballHalfCourt.png; sourceTree = "<group>"; };
 		272BCB9C1AC1E280009D08E8 /* backboard.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = backboard.png; sourceTree = "<group>"; };
 		272BCB9E1AC1EABC009D08E8 /* LaunchInfo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LaunchInfo.swift; sourceTree = "<group>"; };
 		276115AF1AB8AF65008D1D78 /* basketball_floor_texture.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = basketball_floor_texture.png; sourceTree = "<group>"; };
 		2783C97E1ABC9AE8008EB093 /* BallPosition.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BallPosition.swift; sourceTree = "<group>"; };
 		2783C9801ABCCB6E008EB093 /* basketball_floor_textureHQ.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = basketball_floor_textureHQ.png; sourceTree = "<group>"; };
-		2783C9821ABF2565008EB093 /* basketballCourt.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = basketballCourt.png; sourceTree = "<group>"; };
+		2783C9821ABF2565008EB093 /* basketballFullCourt.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = basketballFullCourt.png; sourceTree = "<group>"; };
 		2783C9B41AC083DD008EB093 /* MyParticleSystem.scnp */ = {isa = PBXFileReference; lastKnownFileType = file.scp; path = MyParticleSystem.scnp; sourceTree = "<group>"; };
 		2783C9B51AC083DD008EB093 /* spark.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = spark.png; sourceTree = "<group>"; };
 		2783C9B81AC08B27008EB093 /* CollisionCategory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CollisionCategory.swift; sourceTree = "<group>"; };
@@ -166,7 +168,8 @@
 			children = (
 				272BCB9C1AC1E280009D08E8 /* backboard.png */,
 				2783C9BC1AC0E31D008EB093 /* net.png */,
-				2783C9821ABF2565008EB093 /* basketballCourt.png */,
+				2783C9821ABF2565008EB093 /* basketballFullCourt.png */,
+				272368791AC39C4B00D9D86D /* basketballHalfCourt.png */,
 				2783C9801ABCCB6E008EB093 /* basketball_floor_textureHQ.png */,
 				276115AF1AB8AF65008D1D78 /* basketball_floor_texture.png */,
 				27F0FC0B1AB7B8B4004AC9B1 /* Basketball 1_COLOR.png */,
@@ -267,8 +270,9 @@
 				2783C9811ABCCB6E008EB093 /* basketball_floor_textureHQ.png in Resources */,
 				27F0FC131AB7B8B4004AC9B1 /* Basketball 1_NRM.png in Resources */,
 				2783C9BD1AC0E31D008EB093 /* net.png in Resources */,
-				2783C9831ABF2566008EB093 /* basketballCourt.png in Resources */,
+				2783C9831ABF2566008EB093 /* basketballFullCourt.png in Resources */,
 				27F0FC121AB7B8B4004AC9B1 /* Basketball 1_COLOR.png in Resources */,
+				2723687A1AC39C4B00D9D86D /* basketballHalfCourt.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

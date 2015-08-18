@@ -31,9 +31,9 @@
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
-                            <constraint firstItem="oP7-nI-RYd" firstAttribute="top" secondItem="ayQ-PM-cJC" secondAttribute="bottom" constant="10" id="A52-kU-Rq5"/>
                             <constraint firstItem="0TG-Is-vie" firstAttribute="top" secondItem="VAR-yp-zcX" secondAttribute="top" id="D3m-xl-cmE"/>
                             <constraint firstAttribute="bottom" secondItem="0TG-Is-vie" secondAttribute="bottom" id="H48-1o-M3i"/>
+                            <constraint firstItem="oP7-nI-RYd" firstAttribute="top" secondItem="VAR-yp-zcX" secondAttribute="top" constant="30" id="Zhy-qM-e2s"/>
                             <constraint firstItem="oP7-nI-RYd" firstAttribute="leading" secondItem="VAR-yp-zcX" secondAttribute="leading" constant="10" id="eTL-dT-Ggm"/>
                             <constraint firstAttribute="trailing" secondItem="0TG-Is-vie" secondAttribute="trailing" id="rCL-0b-C9z"/>
                             <constraint firstItem="0TG-Is-vie" firstAttribute="leading" secondItem="VAR-yp-zcX" secondAttribute="leading" id="sQB-y4-N2c"/>
@@ -41,6 +41,10 @@
                     </view>
                     <connections>
                         <outlet property="mapView" destination="oP7-nI-RYd" id="z9o-rv-81Q"/>
+                        <outlet property="mapViewConstraintHeight" destination="yRp-F6-Cya" id="IUU-F0-ars"/>
+                        <outlet property="mapViewConstraintLeft" destination="eTL-dT-Ggm" id="O5p-XJ-A02"/>
+                        <outlet property="mapViewConstraintTop" destination="Zhy-qM-e2s" id="a1v-Cp-A0o"/>
+                        <outlet property="mapViewConstraintWidth" destination="PDx-BS-SWo" id="zMs-If-Ppd"/>
                         <outlet property="scnView" destination="0TG-Is-vie" id="rNk-yB-RdH"/>
                     </connections>
                 </viewController>
