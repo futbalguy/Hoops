@@ -138,10 +138,10 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate, SCNSceneR
         let tapGesture = UILongPressGestureRecognizer(target: self, action: "handleLongTap:")
         tapGesture.minimumPressDuration = 0.01
         
-        var gestureRecognizers = [AnyObject]()
+        var gestureRecognizers = [UIGestureRecognizer]()
         gestureRecognizers.append(tapGesture)
         if let existingGestureRecognizers = scnView.gestureRecognizers {
-            gestureRecognizers.extend(existingGestureRecognizers)
+            gestureRecognizers.appendContentsOf(existingGestureRecognizers)
         }
         scnView.gestureRecognizers = gestureRecognizers
         
@@ -164,7 +164,7 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate, SCNSceneR
             
             
             let basketballNode = scene.rootNode.childNodeWithName("Basketball", recursively: true)!
-            let position = basketballNode.presentationNode().position
+            let position = basketballNode.presentationNode.position
             
             self.updateMapBallPositionForPosition(position)
             self.updateMapBallStartPositionForPosition(self.ballStartPosition)
@@ -202,7 +202,7 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate, SCNSceneR
     
     func setupMapTitleView () {
         self.mapTitleLabel = UILabel(frame: CGRectZero)
-        self.mapTitleLabel.setTranslatesAutoresizingMaskIntoConstraints(false)
+        self.mapTitleLabel.translatesAutoresizingMaskIntoConstraints = false
         
         let titleText = "\nBasketball Shooting Location"
         let titleText2 = "\n(Tap To Change)"
@@ -278,7 +278,7 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate, SCNSceneR
     
     func setupMapImageView () {
         self.mapImageView = UIImageView(image: UIImage(contentsOfFile: NSBundle.mainBundle().pathForResource("basketballHalfCourt", ofType: "png")!))
-        self.mapImageView.setTranslatesAutoresizingMaskIntoConstraints(false)
+        self.mapImageView.translatesAutoresizingMaskIntoConstraints = false
         
         self.mapImageView.contentMode = UIViewContentMode.ScaleAspectFit
         self.mapView.addSubview(self.mapImageView)
@@ -293,7 +293,7 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate, SCNSceneR
     func setupMapViewButtons () {
         
         self.mapViewConfirmButton = UIButton(frame: CGRectZero)
-        self.mapViewConfirmButton.setTranslatesAutoresizingMaskIntoConstraints(false)
+        self.mapViewConfirmButton.translatesAutoresizingMaskIntoConstraints = false
         
         self.mapViewConfirmButton.setTitle("Confirm Change", forState: UIControlState.Normal)
         
@@ -308,7 +308,7 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate, SCNSceneR
         
         
         self.mapViewCancelButton = UIButton(frame: CGRectZero)
-        self.mapViewCancelButton.setTranslatesAutoresizingMaskIntoConstraints(false)
+        self.mapViewCancelButton.translatesAutoresizingMaskIntoConstraints = false
         
         self.mapViewCancelButton.setTitle("Cancel", forState: UIControlState.Normal)
         
@@ -329,7 +329,7 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate, SCNSceneR
     }
     
     func mapViewConfirmTapped(recognizer:UIButton) {
-        println("confirm tapped")
+        print("confirm tapped")
         
         self.ballLastStartPosition = nil
         
@@ -338,7 +338,7 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate, SCNSceneR
     }
     
     func mapViewCancelTapped(recognizer:UIButton) {
-        println("cancel tapped")
+        print("cancel tapped")
         
         self.setBallStartPosition(self.ballLastStartPosition!)
         
@@ -476,7 +476,7 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate, SCNSceneR
         
         let viewFrame = CGRect(x: 0, y: 0, width: 10, height: 10)
         let view = UIView(frame: viewFrame)
-        view.setTranslatesAutoresizingMaskIntoConstraints(false)
+        view.translatesAutoresizingMaskIntoConstraints = false
         
         view.backgroundColor = UIColor.orangeColor()
         view.layer.cornerRadius = view.frame.size.height / 2.0
@@ -490,7 +490,7 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate, SCNSceneR
         
         let viewFrame = CGRect(x: 0, y: 0, width: 10, height: 10)
         let view = UIView(frame: viewFrame)
-        view.setTranslatesAutoresizingMaskIntoConstraints(false)
+        view.translatesAutoresizingMaskIntoConstraints = false
         
         view.backgroundColor = UIColor.greenColor()
         view.layer.cornerRadius = view.frame.size.height / 2.0
@@ -545,7 +545,7 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate, SCNSceneR
     }
     
     func handleMapTap(recognizer:UIGestureRecognizer) {
-        println("map tapped")
+        print("map tapped")
         
         //stop ball from rolling because it just looks weird
         self.basketballNode.physicsBody!.angularVelocity = SCNVector4(x: 0, y: 0, z: 0, w: 0)
@@ -587,12 +587,12 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate, SCNSceneR
     
     func checkBallBounceOffSurfaceForPhysicsContact(contact: SCNPhysicsContact) {
         
-        let surfacesToShowBounceBitMask = Collisions.Backboard | Collisions.Wall | Collisions.Pole
+        let surfacesToShowBounceBitMask = [Collisions.Backboard, Collisions.Wall, Collisions.Pole]
         
         let contactMask =
         contact.nodeB.physicsBody!.categoryBitMask
         
-        if ((contactMask & surfacesToShowBounceBitMask.rawValue) > 0) {
+        if (contactMask > 0 && surfacesToShowBounceBitMask.contains(Collisions.None)) {
             
             //println("node A: \(contact.nodeA.name)")
             //println("node B: \(contact.nodeB.name)")
@@ -647,7 +647,7 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate, SCNSceneR
         
         let transformMatrix = SCNMatrix4MakeTranslation(coordinates.x, coordinates.y, coordinates.z)
         
-        self.scene.addParticleSystem(particles, withTransform: transformMatrix)
+        self.scene.addParticleSystem(particles!, withTransform: transformMatrix)
         
     }
     
@@ -1175,33 +1175,32 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate, SCNSceneR
     func handleTap(gestureRecognize: UIGestureRecognizer) {
         // check what nodes are tapped
         let p = gestureRecognize.locationInView(scnView)
-        if let hitResults = scnView.hitTest(p, options: nil) {
-            // check that we clicked on at least one object
-            if hitResults.count > 0 {
-                // retrieved the first clicked object
-                let result: AnyObject! = hitResults[0]
-                
-                // get its material
-                let material = result.node!.geometry!.firstMaterial!
-                
-                // highlight it
+        let hitResults = scnView.hitTest(p, options: nil)
+        // check that we clicked on at least one object
+        if hitResults.count > 0 {
+            // retrieved the first clicked object
+            let result: AnyObject! = hitResults[0]
+            
+            // get its material
+            let material = result.node!.geometry!.firstMaterial!
+            
+            // highlight it
+            SCNTransaction.begin()
+            SCNTransaction.setAnimationDuration(0.5)
+            
+            // on completion - unhighlight
+            SCNTransaction.setCompletionBlock {
                 SCNTransaction.begin()
                 SCNTransaction.setAnimationDuration(0.5)
                 
-                // on completion - unhighlight
-                SCNTransaction.setCompletionBlock {
-                    SCNTransaction.begin()
-                    SCNTransaction.setAnimationDuration(0.5)
-                    
-                    material.emission.contents = UIColor.blackColor()
-                    
-                    SCNTransaction.commit()
-                }
-                
-                material.emission.contents = UIColor.greenColor()
+                material.emission.contents = UIColor.blackColor()
                 
                 SCNTransaction.commit()
             }
+            
+            material.emission.contents = UIColor.greenColor()
+            
+            SCNTransaction.commit()
         }
     }
     
@@ -1392,7 +1391,7 @@ class GameViewController: UIViewController, SCNPhysicsContactDelegate, SCNSceneR
                     blendRatioHorizontal = Float(1.0)
                 }
                 
-                println("blended ratio: \(blendRatioHorizontal)")
+                print("blended ratio: \(blendRatioHorizontal)")
                 
                 let newX = rotatedVector.x * blendRatioHorizontal + idealLaunchVector.x * (1.0 - blendRatioHorizontal)
                 let newY = rotatedVector.y * blendRatioVertical + idealLaunchVector.y * (1.0 - blendRatioVertical)
