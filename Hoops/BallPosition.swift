@@ -11,12 +11,12 @@ import SceneKit
 
 class BallPosition {
 
-    var position : SCNVector3!
-    var date : NSDate!
+    var position : SCNVector3
+    var date : Date
     
     init(position:SCNVector3) {
         
         self.position = position
-        self.date = NSDate()
+        self.date = Date()
     }
 }

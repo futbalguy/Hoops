@@ -11,14 +11,14 @@ import SceneKit
 
 class LaunchInfo {
     
-    var position : SCNVector3!
-    var date : NSDate!
-    var initialVelocity : SCNVector3!
+    var position : SCNVector3
+    var date : Date
+    var initialVelocity : SCNVector3
     
     init(position:SCNVector3, initialVelocity:SCNVector3) {
         
         self.position = position
-        self.date = NSDate()
+        self.date = Date()
         self.initialVelocity = initialVelocity
         
     }

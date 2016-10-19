@@ -24,22 +24,11 @@
 		27F0FBE41AB7B30A004AC9B1 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 27F0FBE21AB7B30A004AC9B1 /* Main.storyboard */; };
 		27F0FBE61AB7B30A004AC9B1 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 27F0FBE51AB7B30A004AC9B1 /* Images.xcassets */; };
 		27F0FBE91AB7B30A004AC9B1 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 27F0FBE71AB7B30A004AC9B1 /* LaunchScreen.xib */; };
-		27F0FBF51AB7B30A004AC9B1 /* HoopsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27F0FBF41AB7B30A004AC9B1 /* HoopsTests.swift */; };
 		27F0FBFF1AB7B39E004AC9B1 /* SceneKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 27F0FBFE1AB7B39E004AC9B1 /* SceneKit.framework */; };
 		27F0FC121AB7B8B4004AC9B1 /* Basketball 1_COLOR.png in Resources */ = {isa = PBXBuildFile; fileRef = 27F0FC0B1AB7B8B4004AC9B1 /* Basketball 1_COLOR.png */; };
 		27F0FC131AB7B8B4004AC9B1 /* Basketball 1_NRM.png in Resources */ = {isa = PBXBuildFile; fileRef = 27F0FC0C1AB7B8B4004AC9B1 /* Basketball 1_NRM.png */; };
 		27F964E51AB8AD9C0073A52D /* Basketball.dae in Resources */ = {isa = PBXBuildFile; fileRef = 27F964E41AB8AD9C0073A52D /* Basketball.dae */; };
 /* End PBXBuildFile section */
-
-/* Begin PBXContainerItemProxy section */
-		27F0FBEF1AB7B30A004AC9B1 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 27F0FBCF1AB7B30A004AC9B1 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 27F0FBD61AB7B30A004AC9B1;
-			remoteInfo = Hoops;
-		};
-/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		272368791AC39C4B00D9D86D /* basketballHalfCourt.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = basketballHalfCourt.png; sourceTree = "<group>"; };
@@ -61,9 +50,6 @@
 		27F0FBE31AB7B30A004AC9B1 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		27F0FBE51AB7B30A004AC9B1 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		27F0FBE81AB7B30A004AC9B1 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/LaunchScreen.xib; sourceTree = "<group>"; };
-		27F0FBEE1AB7B30A004AC9B1 /* HoopsTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = HoopsTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		27F0FBF31AB7B30A004AC9B1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		27F0FBF41AB7B30A004AC9B1 /* HoopsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HoopsTests.swift; sourceTree = "<group>"; };
 		27F0FBFE1AB7B39E004AC9B1 /* SceneKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SceneKit.framework; path = System/Library/Frameworks/SceneKit.framework; sourceTree = SDKROOT; };
 		27F0FC0B1AB7B8B4004AC9B1 /* Basketball 1_COLOR.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Basketball 1_COLOR.png"; sourceTree = "<group>"; };
 		27F0FC0C1AB7B8B4004AC9B1 /* Basketball 1_NRM.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Basketball 1_NRM.png"; sourceTree = "<group>"; };
@@ -80,13 +66,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		27F0FBEB1AB7B30A004AC9B1 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -96,7 +75,6 @@
 				2783C9BE1AC0FBB2008EB093 /* GLKit.framework */,
 				27F0FBFE1AB7B39E004AC9B1 /* SceneKit.framework */,
 				27F0FBD91AB7B30A004AC9B1 /* Hoops */,
-				27F0FBF11AB7B30A004AC9B1 /* HoopsTests */,
 				27F0FBD81AB7B30A004AC9B1 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -105,7 +83,6 @@
 			isa = PBXGroup;
 			children = (
 				27F0FBD71AB7B30A004AC9B1 /* Hoops.app */,
-				27F0FBEE1AB7B30A004AC9B1 /* HoopsTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -133,23 +110,6 @@
 			isa = PBXGroup;
 			children = (
 				27F0FBDB1AB7B30A004AC9B1 /* Info.plist */,
-			);
-			name = "Supporting Files";
-			sourceTree = "<group>";
-		};
-		27F0FBF11AB7B30A004AC9B1 /* HoopsTests */ = {
-			isa = PBXGroup;
-			children = (
-				27F0FBF41AB7B30A004AC9B1 /* HoopsTests.swift */,
-				27F0FBF21AB7B30A004AC9B1 /* Supporting Files */,
-			);
-			path = HoopsTests;
-			sourceTree = "<group>";
-		};
-		27F0FBF21AB7B30A004AC9B1 /* Supporting Files */ = {
-			isa = PBXGroup;
-			children = (
-				27F0FBF31AB7B30A004AC9B1 /* Info.plist */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
@@ -198,24 +158,6 @@
 			productReference = 27F0FBD71AB7B30A004AC9B1 /* Hoops.app */;
 			productType = "com.apple.product-type.application";
 		};
-		27F0FBED1AB7B30A004AC9B1 /* HoopsTests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 27F0FBFB1AB7B30A004AC9B1 /* Build configuration list for PBXNativeTarget "HoopsTests" */;
-			buildPhases = (
-				27F0FBEA1AB7B30A004AC9B1 /* Sources */,
-				27F0FBEB1AB7B30A004AC9B1 /* Frameworks */,
-				27F0FBEC1AB7B30A004AC9B1 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				27F0FBF01AB7B30A004AC9B1 /* PBXTargetDependency */,
-			);
-			name = HoopsTests;
-			productName = HoopsTests;
-			productReference = 27F0FBEE1AB7B30A004AC9B1 /* HoopsTests.xctest */;
-			productType = "com.apple.product-type.bundle.unit-test";
-		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -223,16 +165,13 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 0720;
-				LastUpgradeCheck = 0620;
+				LastUpgradeCheck = 0800;
 				ORGANIZATIONNAME = RokShop;
 				TargetAttributes = {
 					27F0FBD61AB7B30A004AC9B1 = {
 						CreatedOnToolsVersion = 6.2;
 						DevelopmentTeam = UWUGNUACLE;
-					};
-					27F0FBED1AB7B30A004AC9B1 = {
-						CreatedOnToolsVersion = 6.2;
-						TestTargetID = 27F0FBD61AB7B30A004AC9B1;
+						LastSwiftMigration = 0800;
 					};
 				};
 			};
@@ -250,7 +189,6 @@
 			projectRoot = "";
 			targets = (
 				27F0FBD61AB7B30A004AC9B1 /* Hoops */,
-				27F0FBED1AB7B30A004AC9B1 /* HoopsTests */,
 			);
 		};
 /* End PBXProject section */
@@ -277,13 +215,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		27F0FBEC1AB7B30A004AC9B1 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -299,23 +230,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		27F0FBEA1AB7B30A004AC9B1 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				27F0FBF51AB7B30A004AC9B1 /* HoopsTests.swift in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXSourcesBuildPhase section */
-
-/* Begin PBXTargetDependency section */
-		27F0FBF01AB7B30A004AC9B1 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 27F0FBD61AB7B30A004AC9B1 /* Hoops */;
-			targetProxy = 27F0FBEF1AB7B30A004AC9B1 /* PBXContainerItemProxy */;
-		};
-/* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
 		27F0FBE21AB7B30A004AC9B1 /* Main.storyboard */ = {
@@ -357,8 +272,10 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
@@ -376,6 +293,7 @@
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 3.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -402,6 +320,7 @@
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
@@ -411,6 +330,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 8.2;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
+				SWIFT_VERSION = 3.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
 			};
@@ -424,8 +344,10 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				INFOPLIST_FILE = Hoops/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "ROK.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
+				SWIFT_VERSION = 3.0;
 			};
 			name = Debug;
 		};
@@ -437,42 +359,11 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				INFOPLIST_FILE = Hoops/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "ROK.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
-			};
-			name = Release;
-		};
-		27F0FBFC1AB7B30A004AC9B1 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(SDKROOT)/Developer/Library/Frameworks",
-					"$(inherited)",
-				);
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"DEBUG=1",
-					"$(inherited)",
-				);
-				INFOPLIST_FILE = HoopsTests/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Hoops.app/Hoops";
-			};
-			name = Debug;
-		};
-		27F0FBFD1AB7B30A004AC9B1 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(SDKROOT)/Developer/Library/Frameworks",
-					"$(inherited)",
-				);
-				INFOPLIST_FILE = HoopsTests/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Hoops.app/Hoops";
+				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
+				SWIFT_VERSION = 3.0;
 			};
 			name = Release;
 		};
@@ -493,15 +384,6 @@
 			buildConfigurations = (
 				27F0FBF91AB7B30A004AC9B1 /* Debug */,
 				27F0FBFA1AB7B30A004AC9B1 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		27F0FBFB1AB7B30A004AC9B1 /* Build configuration list for PBXNativeTarget "HoopsTests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				27F0FBFC1AB7B30A004AC9B1 /* Debug */,
-				27F0FBFD1AB7B30A004AC9B1 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

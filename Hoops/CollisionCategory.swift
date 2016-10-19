@@ -9,7 +9,7 @@
 import UIKit
 
 
-struct Collisions : OptionSetType, BooleanType {
+struct Collisions : OptionSet, BoolRepresentable {
     private var value: Int
     init(_ rawValue: Int) { self.value = rawValue }
     
@@ -32,24 +32,23 @@ struct Collisions : OptionSetType, BooleanType {
     static var None: Collisions          { return self.init(0) }
     static var Ball: Collisions   { return self.init(1 << 0) }
     static var HoopNet: Collisions  { return self.init(1 << 1) }
-    static var HoopNetSpace: Collisions  { return self.init(1 << 9) }
-
     static var Backboard: Collisions   { return self.init(1 << 2) }
-    
     static var Wall: Collisions   { return self.init(1 << 3) }
-    static var FrontWall: Collisions   { return self.init(1 << 7) }
-
     static var Floor: Collisions   { return self.init(1 << 4) }
     static var Rim: Collisions   { return self.init(1 << 5) }
-    static var RimPlane: Collisions   { return self.init(1 << 8) }
-
     static var Pole: Collisions   { return self.init(1 << 6) }
-
+    static var FrontWall: Collisions   { return self.init(1 << 7) }
+    static var RimPlane: Collisions   { return self.init(1 << 8) }
+    static var HoopNetSpace: Collisions  { return self.init(1 << 9) }
     static var All: Collisions           { return self.init(0b111) }
 }
 
 extension Bool {
-    init(bitComponents : [BooleanType]) {
-        self = bitComponents.reduce(false, combine: {$0.boolValue && $1.boolValue})
+    init(bitComponents : [BoolRepresentable]) {
+        self = bitComponents.reduce(false, {$0 && $1.boolValue})
     }
+}
+
+protocol BoolRepresentable {
+    var boolValue: Bool { get }
 }
