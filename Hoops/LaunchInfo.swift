@@ -16,10 +16,8 @@ class LaunchInfo {
     var initialVelocity : SCNVector3
     
     init(position:SCNVector3, initialVelocity:SCNVector3) {
-        
         self.position = position
         self.date = Date()
         self.initialVelocity = initialVelocity
-        
     }
 }
